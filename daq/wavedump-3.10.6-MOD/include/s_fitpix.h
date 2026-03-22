@@ -9,7 +9,7 @@
 #include <sys/time.h>
 #include <libmemcached/memcached.h>
 
-#define RUNFITPIX  // comment to exclude the FitPix from the DAQ entirely
+//#define RUNFITPIX  // comment to exclude the FitPix from the DAQ entirely
 
 #define MAX_DEV 1
 #define SINGLE_CHIP_PIXSIZE 65536
@@ -19,7 +19,7 @@
 #define FPIX_PRINT_INSIDE 0
 #define FPIX_PRINT_OUTSIDE 0
 #define FPIX_PRINT_DEV 0
-#define FPIX_WRITE 1
+#define FPIX_WRITE 0  // if 1, FitPix files will be written regardless of RUNFITPIX
 #define FPIX_BYPASS_TRG 0
 #define FPIX_BYPASS_SLEEP 0
 

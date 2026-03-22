@@ -33,8 +33,8 @@ echo "---"
 # )
 # ---------------
 runarray=(  # set run numbers here
-1728985388
-1729031164
+1774023786
+1774025539
 )
 
 # if requested, overwrite runarray to run on the latest file

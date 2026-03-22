@@ -14,11 +14,11 @@ import uproot
 ##########
 # settings
 
-nsamples = 1024
+nsamples = 1030
 nchips = 1
 nchannels = 8
 
-bfitpix = True
+bfitpix = False
 fitpix_size = 256
 shiftsize = 2
 shiftvars = ["nr_pixels", "x_pixel", "y_pixel"]

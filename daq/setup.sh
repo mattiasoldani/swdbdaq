@@ -1,21 +1,21 @@
 #!/bin/bash
 
 NAMEDAQ=swdbdaq
-export DAQPATH=$HOME/$NAMEDAQ  # <--- set DAQ master path (dedicated sub-paths below)
+export DAQPATH=$HOME/$NAMEDAQ/daq  # <--- set DAQ master path (dedicated sub-paths below)
 export CONFFILE=$DAQPATH/conf/daqnow.txt  # <--- set DAQ configuration file
 export LOCALDATAPATH=$DAQPATH/rawdata
 
-NAMESYNCDAQ=daq
-export SYNCPATH=$HOME/eos_space_temp  # <--- set sync destination master path (dedicated sub-paths below)
+NAMESYNCDAQ=digi_daq
+export SYNCPATH=$HOME/eos_temp  # <--- set sync destination master path (dedicated sub-paths below)
 export SYNCDAQPATH=$SYNCPATH/$NAMESYNCDAQ
-export SYNCDATAPATH=$SYNCPATH/data_ascii
+export SYNCDATAPATH=$SYNCPATH/digi_raw
 export REMOTEUSER=msoldani@lxplus.cern.ch  # <--- set the remote repo account here
-export REMOTEPATH=/eos/experiment/nanocal/misc_dev/24_10_daq_release  # <--- set the remote repo path (to be mounted in SYNCPATH)
+export REMOTEPATH=/eos/experiment/newtile/beamtests/26_05_t10  # <--- set the remote repo path (to be mounted in SYNCPATH)
 export REMOTEDAQPATH=$REMOTEPATH/$NAMESYNCDAQ
 
 PYENVNAME=${NAMEDAQ}_pyenv
-export ROOTCREATEINPATH=$REMOTEPATH/data_ascii  # <--- set the input path for ASCII to ROOT conversion
-export ROOTCREATEOUTPATH=$REMOTEPATH/data_root/splitted  # <--- set the output path for ASCII to ROOT conversion
+export ROOTCREATEINPATH=$REMOTEPATH/digi_raw  # <--- set the input path for ASCII to ROOT conversion
+export ROOTCREATEOUTPATH=$REMOTEPATH/digi_root/splitted  # <--- set the output path for ASCII to ROOT conversion
 
 echo "**********************"
 echo "     MATTIA'S DAQ     "

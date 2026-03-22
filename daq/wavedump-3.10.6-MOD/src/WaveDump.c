@@ -1961,7 +1961,7 @@ int WriteOutputFilesx742PlusFitPixHeader(WaveDumpConfig_t *WDcfg, WaveDumpRun_t 
 *   \param   EventInfo Pointer to the EventInfo data structure
 *   \param   Event Pointer to the Event to write
 */
-int WriteOutputFiles(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGTZ_EventInfo_t *EventInfo, void *Event)
+int WriteOutputFiles(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGTZ_EventInfo_t *EventInfo, void *Event, uint64_t *roMachineTimeS, uint64_t *roMachineTimeNs)
 {
     int ch, j, ns;
     CAEN_DGTZ_UINT16_EVENT_t  *Event16 = NULL;
@@ -1981,13 +1981,15 @@ int WriteOutputFiles(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGTZ_Ev
         // Check the file format type
         if( WDcfg->OutFileFlags& OFF_BINARY) {
             // Binary file format
-            uint32_t BinHeader[6];
+            uint32_t BinHeader[8];
             BinHeader[0] = (WDcfg->Nbit == 8) ? Size + 6*sizeof(*BinHeader) : Size*2 + 6*sizeof(*BinHeader);
             BinHeader[1] = EventInfo->BoardId;
             BinHeader[2] = EventInfo->Pattern;
             BinHeader[3] = ch;
             BinHeader[4] = EventInfo->EventCounter;
             BinHeader[5] = EventInfo->TriggerTimeTag;
+	    BinHeader[6] = (uint32_t) *roMachineTimeS; // added by Mattia (timing)
+	    BinHeader[7] = (uint32_t) *roMachineTimeNs; // added by Mattia (timing)
             if (!WDrun->fout[ch]) {
                 char fname[100];
                 //sprintf(fname, "%swave%d.dat", path,ch);
@@ -2032,6 +2034,8 @@ int WriteOutputFiles(WaveDumpConfig_t *WDcfg, WaveDumpRun_t *WDrun, CAEN_DGTZ_Ev
                 fprintf(WDrun->fout[ch], "Pattern: 0x%04X\n", EventInfo->Pattern & 0xFFFF);
                 fprintf(WDrun->fout[ch], "Trigger Time Stamp: %u\n", EventInfo->TriggerTimeTag);
                 fprintf(WDrun->fout[ch], "DC offset (DAC): 0x%04X\n", WDcfg->DCoffset[ch] & 0xFFFF);
+		fprintf(WDrun->fout[ch], "RO Time (significand in s): %u\n", *roMachineTimeS); // added by Mattia (timing)
+		fprintf(WDrun->fout[ch], "RO Time (decimals in ns): %u\n", *roMachineTimeNs); // added by Mattia (timing)
             }
             for(j=0; j<Size; j++) {
                 if (WDcfg->Nbit == 8)
@@ -2290,9 +2294,10 @@ int main(int argc, char *argv[])
     size_t fpixLength0[MAX_DEV] = {0};
     unsigned short fpix0[MAX_DEV][SINGLE_CHIP_PIXSIZE] = {0};
 
-    // added by Mattia (DAQ usage)
+    // added by Mattia (DAQ usage, timing)
     struct timespec currentTime;
-    double utcMachineTime, utcJitter;
+    uint64_t utcMachineTimeNs, utcMachineTimeS;
+    double utcMachineTime,  utcJitter;
 
     printf("\n");
     printf("**************************************************************\n");
@@ -2675,8 +2680,10 @@ Restart:
 
         // added by Mattia (DAQ usage)
         clock_gettime(CLOCK_REALTIME, &currentTime);
-        utcMachineTime = currentTime.tv_sec + (double)currentTime.tv_nsec / 1e9;
-
+	utcMachineTimeS = currentTime.tv_sec;
+	utcMachineTimeNs = currentTime.tv_nsec;
+        utcMachineTime = (double)utcMachineTimeS + (double)utcMachineTimeNs / 1e9;
+	
         // added by Mattia (FitPix)
         s_fitpix_out_t s_fpix_out;
         if (FPIX_BYPASS_TRG && FPIX_BYPASS_SLEEP)            
@@ -2848,9 +2855,9 @@ InterruptTimeout:
                     // added by Mattia (output)
                     if (FPIX_WRITE) {
 			if (BoardInfo.FamilyCode == CAEN_DGTZ_XX742_FAMILY_CODE)
-                        	iretfpix = WriteOutputFilesFitPixx742(&WDcfg, &WDrun, &WDrunFpix, &EventInfo, Event742, &s_fpix_out);
+                            iretfpix = WriteOutputFilesFitPixx742(&WDcfg, &WDrun, &WDrunFpix, &EventInfo, Event742, &s_fpix_out);
 			else
-                        	iretfpix = WriteOutputFilesFitPix(&WDcfg, &WDrun, &WDrunFpix, &EventInfo, &s_fpix_out);
+			    iretfpix = WriteOutputFilesFitPix(&WDcfg, &WDrun, &WDrunFpix, &EventInfo, &s_fpix_out);
 		    }
 
                     // Note: use a thread here to allow parallel readout and file writing
@@ -2873,13 +2880,13 @@ InterruptTimeout:
                         if (FPIX_WRITE)
                             ret = WriteOutputFilesPlusFitPixHeader(&WDcfg, &WDrun, &EventInfo, Event8, &s_fpix_out);
                         else
-                            ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event8);
+			  ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event8, &utcMachineTimeS, &utcMachineTimeS);
                     }
                     else {
                         if (FPIX_WRITE)
                             ret = WriteOutputFilesPlusFitPixHeader(&WDcfg, &WDrun, &EventInfo, Event16, &s_fpix_out);
                         else
-                            ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event16);
+			  ret = WriteOutputFiles(&WDcfg, &WDrun, &EventInfo, Event16, &utcMachineTimeS, &utcMachineTimeNs);
                     }
                     if (ret) {
                         ErrCode = ERR_OUTFILE_WRITE;
