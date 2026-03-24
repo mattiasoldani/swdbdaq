@@ -2675,11 +2675,14 @@ Restart:
             }
         }
 
+        // added by Mattia (DAQ usage, timing)
+	clock_gettime(CLOCK_REALTIME, &currentTime); // score machine time right before reading out board
+	
         /* Read data from the board */
         ret = CAEN_DGTZ_ReadData(handle, CAEN_DGTZ_SLAVE_TERMINATED_READOUT_MBLT, buffer, &BufferSize);
 
-        // added by Mattia (DAQ usage)
-        clock_gettime(CLOCK_REALTIME, &currentTime);
+        // added by Mattia (DAQ usage, timing)
+	//clock_gettime(CLOCK_REALTIME, &currentTime); // uncomment to score the machine time after reading out board
 	utcMachineTimeS = currentTime.tv_sec;
 	utcMachineTimeNs = currentTime.tv_nsec;
         utcMachineTime = (double)utcMachineTimeS + (double)utcMachineTimeNs / 1e9;

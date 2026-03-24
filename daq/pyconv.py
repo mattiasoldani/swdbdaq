@@ -98,13 +98,20 @@ if len(lsevent0s)>int(not blast):
                     startindexcells = []
                     nrpix = []
                     triggerts = []
+                    rotime = []
                     if checkfirstfilechip[chip]:
                         with open(os.path.join(pathfiles, filename),"r") as file:
+                            brotime = False
                             for iline, line in enumerate(file):
                                 if line.startswith("Start Index Cell:"):
                                     startindexcells.append(list(map(int, re.findall(r'\d+', line)))[0])
                                 if line.startswith("Trigger Time Stamp:"):
                                     triggerts.append(list(map(int, re.findall(r'\d+', line)))[0])
+                                if line.startswith("RO Time (significand in s):"):
+                                    rotime.append(list(map(int, re.findall(r'\d+', line)))[0])
+                                    brotime = True
+                                if (brotime and (line.startswith("RO Time (decimals in ns):"))):
+                                    rotime[-1] += list(map(int, re.findall(r'\d+', line)))[0] * 1e-9    
                                 if (bfitpix and line.startswith("FitPix 0 Nr. of Pixels:")):
                                     nrpix.append(list(map(int, re.findall(r'\d+', line)))[1])
                         checkfirstfilechip[chip] = False
@@ -152,6 +159,8 @@ if len(lsevent0s)>int(not blast):
                         data.update({"trigger_ts" : np.array(triggerts[:-1])})
                     if (bfitpix and (len(nrpix)>0) and not ("nr_pixels" in data.keys())):
                         data.update({"nr_pixels" : np.array(nrpix[:-1])})
+                    if (brotime and (len(rotime)>0)):
+                        data.update({"ro_time" : np.array(rotime[:-1])})
                     checkfirstfile = False
 
                 wf = []
