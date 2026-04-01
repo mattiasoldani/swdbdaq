@@ -32,10 +32,15 @@ echo "---"
 # $(ls -1 $actualpath/data_ascii/. | cut -c$RUNSTRL-$RUNSTRR | sort -r | uniq)
 # )
 # ---------------
-runarray=(  # set run numbers here
-1774117304
+RUNSTRL=1
+RUNSTRR=10
+runarray=(
+#$(ls -1 $ROOTCREATEINPATH/.)
+    1774985288
+    1774985726
+    1774985541
 )
-
+    
 # if requested, overwrite runarray to run on the latest file
 if [ $LATEST -ne 0 ] ; then
     runarray=(-1)

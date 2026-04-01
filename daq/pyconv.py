@@ -82,7 +82,7 @@ if len(lsevent0s)>int(not blast):
                 checknewfiles = True
 
             if checknewfiles:
-                print("Doing event %010d, file %s..." % (event0, filename))
+                print("Doing run %s event %010d, file %s..." % (run, event0, filename))
 
                 filenrs = re.findall(r'\d+', filename)
                 _, chip, channel = list(map(int, filenrs))
