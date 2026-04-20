@@ -38,7 +38,7 @@ DECIMATION_FACTOR  1
 # options: 0 to 100
 # On models 742 there is a delay of about 35nsec on signal Fast Trigger TR; the post trigger is added to
 # this delay  
-POST_TRIGGER  50
+POST_TRIGGER  90
 
 #PULSE_POLARITY: input signal polarity.
 #options: POSITIVE, NEGATIVE
@@ -87,6 +87,11 @@ TEST_PATTERN   NO
 
 # set GPO to output BUSY
 WRITE_REGISTER 811C D0000 1F0000
+
+# set buffer busy when almost full (instead of completely full)
+WRITE_REGISTER 8110 10 10
+WRITE_REGISTER 816C 384 3FF
+#WRITE_REGISTER 816C 3E8 3FF
 
 # added by Mattia:
 OUTPUT_FILE_PATH   /home/daq/swdbdaq/daq/rawdata/
