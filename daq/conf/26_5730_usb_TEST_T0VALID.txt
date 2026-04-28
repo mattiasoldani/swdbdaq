@@ -80,8 +80,6 @@ TEST_PATTERN   NO
 # Example: Set register 1080 to the value of 0x45:
 # WRITE_REGISTER 1080 45 FFFFFFFF
 
-# start 
-
 # only enable external trigger as source for TRGOUT --> GPO
 #WRITE_REGISTER 8110 40000000 E7F0000F
 
